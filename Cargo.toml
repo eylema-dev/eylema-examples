@@ -1,0 +1,12 @@
+[workspace]
+members = ["task-console"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+publish = false
+
+[workspace.dependencies]
+eylema-contracts = { git = "https://github.com/eylema-dev/eylema", rev = "b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f", package = "eylema-contracts" }

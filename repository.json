@@ -2,9 +2,16 @@
   "format_version": 1,
   "repository": "eylema-dev/eylema-examples",
   "role": "examples",
-  "stage": "documentation",
+  "stage": "implementation",
   "tooling_version": "0.3.0",
-  "runtime_implemented": false,
+  "runtime_implemented": true,
   "license_status": "pending maintainer decision",
-  "gate_profile": "documentation-v1"
+  "gate_profile": "rust-v1",
+  "wasm_packages": [],
+  "first_party_git_dependencies": {
+    "eylema-contracts": {
+      "repository": "https://github.com/eylema-dev/eylema",
+      "revision": "b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f"
+    }
+  }
 }
