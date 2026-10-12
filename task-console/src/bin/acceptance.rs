@@ -175,6 +175,22 @@ fn run() -> Result<(), String> {
         .request(Request::Create(inflight_task))
         .map_err(|e| format!("F4 unfinished create: {e}"))?;
     let inflight_execution_id = admit(&inflight_client, inflight_request)?;
+    let progress_deadline = Instant::now() + Duration::from_secs(2);
+    let observed_partial = loop {
+        let snapshot = inflight_client
+            .inspect_task(&inflight_task_id)
+            .map_err(|e| format!("F4 unfinished progress observation: {e}"))?;
+        if snapshot.performed_steps > 0 {
+            if snapshot.performed_steps >= 12 {
+                return Err("F4 unfinished execution completed before interruption".into());
+            }
+            break snapshot;
+        }
+        if Instant::now() >= progress_deadline {
+            return Err("F4 did not observe positive in-flight progress before timeout".into());
+        }
+        thread::sleep(Duration::from_millis(1));
+    };
     inflight_service.stop()?;
     inflight_service = Service::start(&binary, inflight_root.path.clone())?;
     let recovered_client = Client::from_data_dir(&inflight_root.path).map_err(|e| e.to_string())?;
@@ -185,10 +201,11 @@ fn run() -> Result<(), String> {
         .inspect_execution(&inflight_execution_id)
         .map_err(|e| format!("F4 unfinished execution recovery: {e}"))?;
     if unfinished_execution.state != ExecutionState::OutcomeUnknown
+        || unfinished_task.performed_steps < observed_partial.performed_steps
         || unfinished_task.performed_steps >= 12
         || unfinished_task.value != unfinished_task.performed_steps
     {
-        return Err("F4 did not conservatively recover unfinished work as OutcomeUnknown".into());
+        return Err("F4 did not preserve partial progress as OutcomeUnknown without replay".into());
     }
     let recovered_events = recovered_client
         .request(Request::Events {
@@ -213,8 +230,31 @@ fn run() -> Result<(), String> {
     if !has_unknown_event {
         return Err("F4 omitted the explicit ExecutionOutcomeUnknown recovery event".into());
     }
+    thread::sleep(Duration::from_millis(100));
+    let stable_task = recovered_client
+        .inspect_task(&inflight_task_id)
+        .map_err(|e| format!("F4 post-recovery task observation: {e}"))?;
+    let stable_execution = recovered_client
+        .inspect_execution(&inflight_execution_id)
+        .map_err(|e| format!("F4 post-recovery execution observation: {e}"))?;
+    let stable_events = recovered_client
+        .request(Request::Events {
+            task: inflight_task_id.clone(),
+            after: None,
+            limit: 256,
+        })
+        .map_err(|e| format!("F4 post-recovery event observation: {e}"))?;
+    if stable_task != unfinished_task
+        || stable_execution != unfinished_execution
+        || stable_events != Value::List(recovered_events)
+    {
+        return Err("F4 replayed unfinished work or changed recovered events".into());
+    }
     inflight_service.stop()?;
-    println!("F4 passed: unfinished execution recovered as OutcomeUnknown without replay");
+    println!(
+        "F4 passed: partial progress {} recovered as OutcomeUnknown and remained stable without replay",
+        observed_partial.performed_steps
+    );
 
     // F5: identical admission replay keeps its execution identity; changed payload
     // under the same idempotency key and a stale revision fail explicitly.
