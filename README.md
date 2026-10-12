@@ -16,4 +16,4 @@ Production Rust code, shared types, runtime/model execution and the CLI stay in 
 
 The Rust profile and native acceptance runner establish this example's build and behavior on the stated host only. They do not establish GPU, model, training, cross-platform, or physical power-loss behavior. The pinned `eylema-contracts` package is the only external Cargo dependency allowed by the scoped examples profile.
 
-Use [CONTRIBUTING](CONTRIBUTING.md) and [AGENTS](AGENTS.md). Keep private data, credentials, operational records and model weights outside Git. Public artifacts need their own approved storage, provenance and license decision; no store or service is provisioned here. Distribution license selection is pending.
+Use [CONTRIBUTING](CONTRIBUTING.md) and [AGENTS](AGENTS.md). Keep private data, credentials, operational records and model weights outside Git. Public artifacts need their own approved storage, provenance and license decision; no store or service is provisioned here. First-party source and documentation are licensed under [Apache-2.0](LICENSE). Separately identified third-party material, model weights and datasets retain their own terms.

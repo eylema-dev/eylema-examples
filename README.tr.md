@@ -16,4 +16,4 @@ Rust birim ve dokümantasyon testleri için `cargo test --workspace --locked` ç
 
 Rust profili ve yerel kabul koşucusu bu örneğin belirtilen makinedeki derleme ve davranışını kanıtlar. GPU, model, eğitim, platformlar arası veya fiziksel güç kesintisi davranışını kanıtlamaz. Bu örnek profilde izin verilen tek harici Cargo bağımlılığı, sabitlenmiş `eylema-contracts` paketidir.
 
-[Katkı rehberini](CONTRIBUTING.tr.md) ve [AGENTS](AGENTS.md) sözleşmesini kullanın. Özel veriler, kimlik bilgileri, operasyon kayıtları ve model ağırlıkları Git dışında kalır. Açık varlıklar için ayrıca onaylanmış depolama, köken ve lisans kararı gerekir; burada depolama veya hizmet kurulmaz. Dağıtım lisansı kararı beklemektedir.
+[Katkı rehberini](CONTRIBUTING.tr.md) ve [AGENTS](AGENTS.md) sözleşmesini kullanın. Özel veriler, kimlik bilgileri, operasyon kayıtları ve model ağırlıkları Git dışında kalır. Açık varlıklar için ayrıca onaylanmış depolama, köken ve lisans kararı gerekir; burada depolama veya hizmet kurulmaz. Kendi kaynak kodumuz ve belgelerimiz [Apache-2.0](LICENSE) lisanslıdır. Ayrı belirtilen üçüncü taraf içerikleri, model ağırlıkları ve veri kümeleri kendi koşullarını korur.
