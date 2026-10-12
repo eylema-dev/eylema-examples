@@ -246,6 +246,59 @@ pub fn prepare_demo(delta: u64, capability: &str) -> Result<(TaskSpec, Request),
     prepare_request(capability, payload)
 }
 
+/// Prepare a bounded multi-step proposal for acceptance scenarios that need
+/// to stop a service while an execution is still pending.
+pub fn prepare_demo_steps(
+    delta: u64,
+    steps: usize,
+    capability: &str,
+) -> Result<(TaskSpec, Request), ClientError> {
+    if !(2..=12).contains(&steps) {
+        return Err(ClientError::InvalidRequest);
+    }
+    let (_, request) = prepare_demo(delta, capability)?;
+    let Request::Admit {
+        task,
+        proposal,
+        approvals,
+    } = request
+    else {
+        return Err(ClientError::InvalidRequest);
+    };
+    let mut draft = proposal.fields().clone();
+    let base = draft
+        .actions
+        .first()
+        .ok_or(ClientError::InvalidRequest)?
+        .fields()
+        .clone();
+    let stem = task
+        .fields()
+        .task_id
+        .as_str()
+        .strip_prefix("task:")
+        .ok_or(ClientError::InvalidRequest)?;
+    draft.actions = (0..steps)
+        .map(|index| {
+            let mut action = base.clone();
+            action.action_id = ActionId::new(format!("action:{stem}-{}", index + 1))
+                .map_err(|_| ClientError::InvalidRequest)?;
+            action.idempotency_key = IdempotencyKey::new(format!("{stem}:step:{}", index + 1))
+                .map_err(|_| ClientError::InvalidRequest)?;
+            ActionSpec::new(action).map_err(|_| ClientError::InvalidRequest)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let proposal = ActionProposal::new(draft, &task).map_err(|_| ClientError::InvalidRequest)?;
+    Ok((
+        task.clone(),
+        Request::Admit {
+            task,
+            proposal,
+            approvals,
+        },
+    ))
+}
+
 pub fn prepare_request_payload(
     capability: &str,
     payload: Vec<u8>,
@@ -278,8 +331,8 @@ fn prepare_request(capability: &str, payload: Vec<u8>) -> Result<(TaskSpec, Requ
         .map_err(|_| ClientError::InvalidRequest)?
         .as_millis() as u64;
     let budget = Budget::new(
-        1,
         12,
+        64,
         payload.len().max(1024) as u32,
         1,
         Timestamp::new(now.saturating_add(60_000)).map_err(|_| ClientError::InvalidRequest)?,
@@ -535,6 +588,35 @@ mod tests {
         );
         assert_eq!(
             prepare_demo(1_000_001, "task:state").err(),
+            Some(ClientError::InvalidRequest)
+        );
+    }
+
+    #[test]
+    fn multi_step_acceptance_request_has_bounded_unique_action_and_replay_ids() {
+        let (_, Request::Admit { proposal, .. }) =
+            prepare_demo_steps(1, 12, "task:state").expect("bounded twelve-step proposal")
+        else {
+            panic!("expected an admission request");
+        };
+        let actions = &proposal.fields().actions;
+        assert_eq!(actions.len(), 12);
+        let action_ids: std::collections::HashSet<_> = actions
+            .iter()
+            .map(|action| action.fields().action_id.as_str())
+            .collect();
+        let replay_ids: std::collections::HashSet<_> = actions
+            .iter()
+            .map(|action| action.fields().idempotency_key.as_str())
+            .collect();
+        assert_eq!(action_ids.len(), 12);
+        assert_eq!(replay_ids.len(), 12);
+        assert_eq!(
+            prepare_demo_steps(1, 1, "task:state").err(),
+            Some(ClientError::InvalidRequest)
+        );
+        assert_eq!(
+            prepare_demo_steps(1, 13, "task:state").err(),
             Some(ClientError::InvalidRequest)
         );
     }

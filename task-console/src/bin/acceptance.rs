@@ -4,7 +4,8 @@ use eylema_contracts::{
     *,
 };
 use eylema_task_console_example::{
-    Client, ClientError, ExecutionSnapshot, prepare_demo, prepare_request_payload,
+    Client, ClientError, ExecutionSnapshot, prepare_demo, prepare_demo_steps,
+    prepare_request_payload,
 };
 use std::{
     fs,
@@ -15,6 +16,7 @@ use std::{
 };
 
 const CORE_REVISION: &str = "b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f";
+const CORE_TREE: &str = "42cc29d9ad1155bd1ef42c48d3a0d49aeb5368dd";
 
 fn main() {
     if let Err(error) = run() {
@@ -36,9 +38,40 @@ fn run() -> Result<(), String> {
     {
         return Err(format!("core checkout must be exactly {CORE_REVISION}"));
     }
+    let tree = Command::new("git")
+        .args(["-C", &core_root, "rev-parse", "HEAD^{tree}"])
+        .output()
+        .map_err(|_| "could not inspect the core source tree")?;
+    if !tree.status.success() || String::from_utf8_lossy(&tree.stdout).trim() != CORE_TREE {
+        return Err(format!("core source tree must be exactly {CORE_TREE}"));
+    }
+    let status = Command::new("git")
+        .args([
+            "-C",
+            &core_root,
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+        ])
+        .output()
+        .map_err(|_| "could not inspect core working-tree changes")?;
+    if !status.status.success() || !status.stdout.is_empty() {
+        return Err("core checkout must have a clean working tree".into());
+    }
+    let build = Command::new("cargo")
+        .args(["build", "--locked", "--bin", "eylema"])
+        .current_dir(&core_root)
+        .output()
+        .map_err(|_| "could not build the pinned core CLI")?;
+    if !build.status.success() {
+        return Err(format!(
+            "pinned core CLI build failed: {}",
+            String::from_utf8_lossy(&build.stderr).trim()
+        ));
+    }
     let binary = Path::new(&core_root).join("target/debug/eylema");
     if !binary.is_file() {
-        return Err("build the pinned core CLI first".into());
+        return Err("pinned core build did not produce the CLI".into());
     }
 
     let root = TempRoot::create("journey")?;
@@ -128,7 +161,60 @@ fn run() -> Result<(), String> {
     {
         return Err("F4 changed task/execution identity or events across service restart".into());
     }
-    println!("F4 passed: task, execution and event page recovered after service restart");
+    println!("F4 passed: completed task, execution and event page recovered after service restart");
+
+    // An unfinished accepted execution is conservatively recovered as
+    // OutcomeUnknown; no step is silently replayed after restart.
+    let inflight_root = TempRoot::create("unfinished-execution")?;
+    let mut inflight_service = Service::start(&binary, inflight_root.path.clone())?;
+    let inflight_client = Client::from_data_dir(&inflight_root.path).map_err(|e| e.to_string())?;
+    let (inflight_task, inflight_request) =
+        prepare_demo_steps(1, 12, "task:state").map_err(|e| e.to_string())?;
+    let inflight_task_id = inflight_task.fields().task_id.clone();
+    inflight_client
+        .request(Request::Create(inflight_task))
+        .map_err(|e| format!("F4 unfinished create: {e}"))?;
+    let inflight_execution_id = admit(&inflight_client, inflight_request)?;
+    inflight_service.stop()?;
+    inflight_service = Service::start(&binary, inflight_root.path.clone())?;
+    let recovered_client = Client::from_data_dir(&inflight_root.path).map_err(|e| e.to_string())?;
+    let unfinished_task = recovered_client
+        .inspect_task(&inflight_task_id)
+        .map_err(|e| format!("F4 unfinished task recovery: {e}"))?;
+    let unfinished_execution = recovered_client
+        .inspect_execution(&inflight_execution_id)
+        .map_err(|e| format!("F4 unfinished execution recovery: {e}"))?;
+    if unfinished_execution.state != ExecutionState::OutcomeUnknown
+        || unfinished_task.performed_steps >= 12
+        || unfinished_task.value != unfinished_task.performed_steps
+    {
+        return Err("F4 did not conservatively recover unfinished work as OutcomeUnknown".into());
+    }
+    let recovered_events = recovered_client
+        .request(Request::Events {
+            task: inflight_task_id.clone(),
+            after: None,
+            limit: 256,
+        })
+        .map_err(|e| format!("F4 unfinished event recovery: {e}"))?;
+    let Value::List(recovered_events) = recovered_events else {
+        return Err("F4 returned a malformed event page".into());
+    };
+    let has_unknown_event = recovered_events.iter().any(|value| {
+        let Value::Bytes(bytes) = value else {
+            return false;
+        };
+        matches!(
+            codec::decode_record(bytes),
+            Ok(eylema_contracts::codec::WireRecord::Event(event))
+                if event.fields().kind == EventKind::ExecutionOutcomeUnknown
+        )
+    });
+    if !has_unknown_event {
+        return Err("F4 omitted the explicit ExecutionOutcomeUnknown recovery event".into());
+    }
+    inflight_service.stop()?;
+    println!("F4 passed: unfinished execution recovered as OutcomeUnknown without replay");
 
     // F5: identical admission replay keeps its execution identity; changed payload
     // under the same idempotency key and a stale revision fail explicitly.

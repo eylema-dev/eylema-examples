@@ -7,7 +7,7 @@ Execution revision 2 is in progress under the maintainer's direct direction to c
 ## Baselines and dependency
 
 - Examples `main` base: `6f013b265e7b457198c8fb821e457bc856d9bb0a`.
-- Accepted G16 core dependency: `eylema-dev/eylema` main `b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f` (G16 core PR #49; tree `42cc29d9ad1155bd1ef42c48d3a0d49aeb5368dd`). No release or tag is claimed; the consumer must pin this immutable commit.
+- Accepted G16 core dependency: `eylema-dev/eylema` main `b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f` (G16 core PR #49; tree `42cc29d9ad1155bd1ef42c48d3a0d49aeb5368dd`). The acceptance runner checks commit, tree and clean worktree, then builds the CLI from that checkout before exercising it. No release or tag is claimed; the consumer pins this immutable commit.
 - Accepted G16 guide integration: `eylema-dev/devguide` main `f7f5b2c22e30ac6dcf41f16c012443a7fe95cd8d` (G16 PR #23, main CI `38229783239`).
 - Product contract bindings: architecture 0.3.1, API 0.1.0, development protocol 0.1.0, and F1–F7 in `eylema-docs-en/docs/project-structure.md` at its current-main revision `4e8f91ce6515bb7d0a02aab89c97cfca8e086a4f`.
 
@@ -41,7 +41,7 @@ Expected examples-repository paths: `task-console/**`, `Cargo.toml`, `Cargo.lock
 ## Verification evidence
 
 - Exact core checkout: `b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f` on ARM64 macOS 27.0.0, Rust 1.99.0.
-- Passed: `cargo test --workspace --locked` (4 unit tests); `cargo clippy --workspace --all-targets --locked -- -D warnings`.
-- Passed native F1–F7 acceptance runner: valid create/inspect plus local invalid-input rejection; deterministic value 7/one-step success; non-human cancellation denied with `FORBIDDEN` and state unchanged; completed task, execution and event page recovered after graceful restart; identical admission replay retains execution ID, changed payload fails `IDEMPOTENCY_CONFLICT`, stale state fails `REVISION_CONFLICT`; incompatible disposable journal fails closed with `JOURNAL_INVALID`; unavailable capability and oversized request return explicit errors.
-- Limits: F4 currently verifies recovery of a completed task/execution/event page; it does not establish recovery of an in-flight execution. F6 checks an incompatible journal fixture, not physical interruption or power loss. F3 confirms denial by the stock non-human session and makes no claim about effective human-authorized cancellation. These limits remain explicit pending review against the accepted Goal card.
-- Pending: local contributor commands and Rust profile gate, cross-repository shared-tool integration, translation fingerprints, real populated PR check, exact-head GitHub CI, and separate exact-head review.
+- Passed: `cargo test --workspace --locked` (5 unit tests); `cargo clippy --workspace --all-targets --locked -- -D warnings`.
+- Passed native F1–F7 acceptance runner: valid create/inspect plus local invalid-input rejection; deterministic value 7/one-step success; non-human cancellation denied with `FORBIDDEN` and state unchanged; completed task, execution and event page recovered after graceful restart; unfinished accepted multi-step execution recovered as `OutcomeUnknown` with an explicit event and no replay; identical admission replay retains execution ID, changed payload fails `IDEMPOTENCY_CONFLICT`, stale state fails `REVISION_CONFLICT`; incompatible disposable journal fails closed with `JOURNAL_INVALID`; unavailable capability and oversized request return explicit errors.
+- Limits: F6 checks an incompatible journal fixture, not physical interruption or power loss. F3 confirms denial by the stock non-human session and makes no claim about effective human-authorized cancellation.
+- Passed locally: contributor Python checks, exact ARM64 macOS Rust profile, populated PR body validation, translation fingerprint update and `git diff --check`. Pending: current cross-repository pinned snapshot integration, exact-head GitHub CI after the F4 update, and a separate exact-head reviewer.
