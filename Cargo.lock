@@ -5,7 +5,7 @@ version = 4
 [[package]]
 name = "eylema-contracts"
 version = "0.1.0"
-source = "git+https://github.com/eylema-dev/eylema?rev=b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f#b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f"
+source = "git+https://github.com/eyleme-dev/eyleme?rev=b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f#b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f"
 
 [[package]]
 name = "eylema-task-console-example"
