@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "repository": "eylema-dev/eylema-examples",
+  "repository": "eyleme-dev/eylema-examples",
   "role": "examples",
   "stage": "implementation",
   "tooling_version": "0.3.0",
@@ -10,7 +10,7 @@
   "wasm_packages": [],
   "first_party_git_dependencies": {
     "eylema-contracts": {
-      "repository": "https://github.com/eylema-dev/eylema",
+      "repository": "https://github.com/eyleme-dev/eyleme",
       "revision": "b06b7bac1aa121a4fee81e9fd0f79e4cf2eeeb3f"
     }
   }
