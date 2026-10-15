@@ -490,7 +490,7 @@ mod tests {
 
     fn private_test_dir() -> PathBuf {
         let path = std::env::temp_dir().join(format!(
-            "eylema-examples-test-{}-{}",
+            "eyleme-examples-test-{}-{}",
             std::process::id(),
             NEXT_TEMP.fetch_add(1, Ordering::Relaxed)
         ));

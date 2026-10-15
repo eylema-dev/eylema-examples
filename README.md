@@ -1,6 +1,6 @@
 # Eyleme examples
 
-**Name update — 14 October 2026:** The product is **Eyleme** (formerly Eylema); the companion product is **Derleme** (formerly Derlema), and **Onama** keeps its name. The GitHub organization is now `eyleme-dev` (formerly `eylema-dev`). The main repository is now `eyleme-dev/eyleme`. Auxiliary repository basenames, domains, commands, crate/package names, environment variables, data paths and protocol/schema identifiers retain their current spelling for compatibility. Historical evidence preserves its original names and URLs.
+**Name update — 14 October 2026:** The product is **Eyleme** (formerly Eylema); the companion product is **Derleme** (formerly Derlema), and **Onama** keeps its name. The GitHub organization is now `eyleme-dev` (formerly `eylema-dev`). The main repository is now `eyleme-dev/eyleme`. On 15 October 2026 the six `eylema-*` child repositories became `eyleme-*`. Domains, commands, crate/package names, environment variables, data paths and protocol/schema identifiers retain their current spelling for compatibility. Historical evidence preserves its original names and URLs.
 
 Reproducible example applications. [Türkçe](README.tr.md).
 
@@ -12,7 +12,7 @@ The task-console example creates and inspects a task, submits a deterministic st
 
 Run the Rust unit and documentation tests with `cargo test --workspace --locked`. Check formatting and warnings with `cargo fmt --all -- --check` and `cargo clippy --workspace --all-targets --locked -- -D warnings`. To run the seven native acceptance scenarios, first build the exact pinned core CLI with its documented native command, then run `cargo run --locked --bin acceptance -- /path/to/eylema`. The acceptance runner checks the supplied checkout's `HEAD` before starting it and uses disposable private data directories. F6 covers an incompatible journal fixture; it is not a physical power-loss test.
 
-Production Rust code, shared types, runtime/model execution and the CLI stay in [Eyleme](https://github.com/eyleme-dev/eyleme); product contracts live in [English docs](https://github.com/eyleme-dev/eylema-docs-en) and [Turkish docs](https://github.com/eyleme-dev/eylema-docs-tr). [The repository map](https://github.com/eyleme-dev/devguide/blob/main/docs/en/repository-map.md) defines the boundaries.
+Production Rust code, shared types, runtime/model execution and the CLI stay in [Eyleme](https://github.com/eyleme-dev/eyleme); product contracts live in [English docs](https://github.com/eyleme-dev/eyleme-docs-en) and [Turkish docs](https://github.com/eyleme-dev/eyleme-docs-tr). [The repository map](https://github.com/eyleme-dev/devguide/blob/main/docs/en/repository-map.md) defines the boundaries.
 
 ## Evidence boundary
 
