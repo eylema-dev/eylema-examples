@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "repository": "eyleme-dev/eylema-examples",
+  "repository": "eyleme-dev/eyleme-examples",
   "role": "examples",
   "stage": "implementation",
   "tooling_version": "0.3.0",

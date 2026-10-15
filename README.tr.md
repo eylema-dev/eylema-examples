@@ -1,6 +1,6 @@
 # Eyleme örnekleri
 
-**Ad güncellemesi — 14 Ekim 2026:** Ürünün adı **Eyleme** (önceki adı Eylema), tamamlayıcı ürünün adı **Derleme** (önceki adı Derlema) oldu; **Onama** aynı kaldı. GitHub organizasyonunun adı artık `eyleme-dev` (önceki adı `eylema-dev`). Ana deponun adı artık `eyleme-dev/eyleme`. Yardımcı depoların kısa adları, alan adları, komutlar, crate/paket adları, ortam değişkenleri, veri yolları ve protokol/şema tanımlayıcıları uyumluluk için mevcut yazımlarını korur. Tarihsel kanıtlar özgün ad ve bağlantıları korur.
+**Ad güncellemesi — 14 Ekim 2026:** Ürünün adı **Eyleme** (önceki adı Eylema), tamamlayıcı ürünün adı **Derleme** (önceki adı Derlema) oldu; **Onama** aynı kaldı. GitHub organizasyonunun adı artık `eyleme-dev` (önceki adı `eylema-dev`). Ana deponun adı artık `eyleme-dev/eyleme`. 15 Ekim 2026 tarihinde altı `eylema-*` alt deposu `eyleme-*` olarak değişti. Alan adları, komutlar, crate/paket adları, ortam değişkenleri, veri yolları ve protokol/şema tanımlayıcıları uyumluluk için mevcut yazımlarını korur. Tarihsel kanıtlar özgün ad ve bağlantıları korur.
 
 Tekrarlanabilir örnek uygulamalar. [English](README.md).
 
@@ -12,7 +12,7 @@ Task-console örneği görev oluşturup inceler, belirlenimci bir adım gönderi
 
 Rust birim ve dokümantasyon testleri için `cargo test --workspace --locked` çalıştırın. Biçim ve uyarıları `cargo fmt --all -- --check` ve `cargo clippy --workspace --all-targets --locked -- -D warnings` ile denetleyin. Yedi yerel kabul senaryosu için önce sabitlenmiş çekirdek CLI'ını belgelenen yerel komutla derleyin, ardından `cargo run --locked --bin acceptance -- /path/to/eylema` çalıştırın. Kabul koşucusu hizmeti başlatmadan önce verilen checkout'un `HEAD` değerini doğrular ve geçici, özel izinli veri dizinleri kullanır. F6 uyumsuz günlük fixture'ını kapsar; fiziksel güç kesintisi testi değildir.
 
-Üretim Rust kodu, ortak tipler, çalışma zamanı/model yürütmesi ve CLI [Eyleme](https://github.com/eyleme-dev/eyleme) içinde; ürün sözleşmeleri [İngilizce](https://github.com/eyleme-dev/eylema-docs-en) ve [Türkçe](https://github.com/eyleme-dev/eylema-docs-tr) belge depolarındadır. [Depo haritası](https://github.com/eyleme-dev/devguide/blob/main/docs/tr/repository-map.md) sınırları tanımlar.
+Üretim Rust kodu, ortak tipler, çalışma zamanı/model yürütmesi ve CLI [Eyleme](https://github.com/eyleme-dev/eyleme) içinde; ürün sözleşmeleri [İngilizce](https://github.com/eyleme-dev/eyleme-docs-en) ve [Türkçe](https://github.com/eyleme-dev/eyleme-docs-tr) belge depolarındadır. [Depo haritası](https://github.com/eyleme-dev/devguide/blob/main/docs/tr/repository-map.md) sınırları tanımlar.
 
 ## Kanıt sınırı
 
